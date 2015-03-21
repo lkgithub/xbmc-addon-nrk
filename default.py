@@ -28,6 +28,7 @@ import routing
 plugin = routing.Plugin()
 
 SHOW_SUBS = int(xbmcaddon.Addon().getSetting('showsubtitles')) == 1
+FAKE_PROXY_FOR = xbmcaddon.Addon().getSetting("x-forwarded-for")
 
 Node = namedtuple('Node', ['title', 'url'])
 
@@ -54,6 +55,8 @@ def live():
         li.setInfo('video', {'title': ch.title})
         li.addStreamInfo('video', {'codec': 'h264', 'width': 1280, 'height': 720})
         li.addStreamInfo('audio', {'codec': 'aac', 'channels': 2})
+        if FAKE_PROXY_FOR:
+            ch.media_url = ch.media_url + "|X-Forwarded-For=" + FAKE_PROXY_FOR
         addDirectoryItem(plugin.handle, ch.media_url, li, False)
 
     add_radio_channels()
@@ -247,6 +250,9 @@ def play(video_id, series_id="", unused=""):
         return
     url = urls[0] if len(urls) == 1 else "stack://" + ' , '.join(urls)
 
+    if FAKE_PROXY_FOR:
+        url = url + "|X-Forwarded-For=" + FAKE_PROXY_FOR
+        
     xbmcplugin.setResolvedUrl(plugin.handle, True, ListItem(path=url))
     player = xbmc.Player()
     subtitle = subs.get_subtitles(video_id)

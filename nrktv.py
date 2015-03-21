@@ -20,6 +20,9 @@ import HTMLParser
 import CommonFunctions as common
 from itertools import repeat
 from nrktv_mobile import Program
+import xbmcaddon
+
+FAKE_PROXY_FOR = xbmcaddon.Addon().getSetting("x-forwarded-for")
 
 html_decode = HTMLParser.HTMLParser().unescape
 parseDOM = common.parseDOM
@@ -29,6 +32,8 @@ session.headers['User-Agent'] = 'xbmc.org'
 session.headers['X-Requested-With'] = 'XMLHttpRequest'
 session.headers['Cookie'] = "NRK_PLAYER_SETTINGS_TV=devicetype=desktop&preferred-player-odm=hlslink&preferred-player-live=hlslink"
 
+if FAKE_PROXY_FOR:
+    session.headers['X-Forwarded-For'] = FAKE_PROXY_FOR
 
 def _programs_from_lists(titles, urls, thumbs, fanart, descr=repeat(None)):
     programs = []

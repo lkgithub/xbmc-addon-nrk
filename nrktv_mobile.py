@@ -19,10 +19,16 @@ from __future__ import unicode_literals
 
 import datetime
 from requests import Session
+import xbmcaddon
+
+FAKE_PROXY_FOR = xbmcaddon.Addon().getSetting("x-forwarded-for")
 
 session = Session()
 session.headers['User-Agent'] = 'xbmc.org'
 session.headers['app-version-android'] = '51'
+
+if FAKE_PROXY_FOR:
+    session.headers['X-Forwarded-For'] = FAKE_PROXY_FOR
 
 _image_url = "http://m.nrk.no/m/img?kaleidoId=%s&width=%d"
 
